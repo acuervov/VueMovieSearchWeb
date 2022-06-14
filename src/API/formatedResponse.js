@@ -1,4 +1,4 @@
-import { findMovies, getGenders, movieById } from "./searchMovie";
+import { findMovies, getGenders, getTrailer, movieById } from "./searchMovie";
 
 export async function findMoviesFormated({ name, page, genres, type }) {
   const reponse = await findMovies({ name, page, genres, type });
@@ -20,9 +20,17 @@ export async function movieByIdFormated(id) {
 
 export async function getMovieGendersFormated() {
   const response = await getGenders();
-  console.log("response", response);
   if (response.data.success) {
     return response.data.results;
+  } else {
+    alert("There is no movie with that ID");
+  }
+}
+
+export async function getTrailerFormated(id) {
+  const response = await getTrailer(id);
+  if (response.data.success) {
+    return response.data.result;
   } else {
     alert("There is no movie with that ID");
   }

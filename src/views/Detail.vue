@@ -2,7 +2,11 @@
   <div class="detail">
     <div class="detail-title">
       <h1>
-        {{ movieData.title ? movieData.title : "Movie Title" }}
+        {{
+          $store.state.detailedMovie.title
+            ? $store.state.detailedMovie.title
+            : "Movie Title"
+        }}
       </h1>
       <button
         v-if="!isFavorites"
@@ -21,16 +25,15 @@
     </div>
     <div class="detail-trailer">
       <h2>Trailer</h2>
-      <!-- <iframe width="320" height="240" :src="`${this.movieData.embedUrls[0].url}`">
-    </iframe> -->
+      <iframe width="320" height="240" :src="`${this.movieTrailer}`"> </iframe>
     </div>
     <div class="movie-info">
       <div class="movie-description">
         <h2>Description</h2>
         <p>
           {{
-            movieData.description
-              ? store.state.detailedMovie.description
+            $store.state.detailedMovie.description
+              ? $store.state.detailedMovie.description
               : "Movie complete description"
           }}
         </p>
@@ -45,31 +48,51 @@
           <tr>
             <td>Dirección</td>
             <td>
-              {{ movieData.directors ? movieData.directors[0] : "Not found" }}
+              {{
+                $store.state.detailedMovie.directors.length
+                  ? $store.state.detailedMovie.directors[0]
+                  : "Not found"
+              }}
             </td>
           </tr>
           <tr>
             <td>Guion</td>
             <td>
-              {{ movieData.escritors ? movieData.escritors[0] : "Not found" }}
+              {{
+                $store.state.detailedMovie.escritors.length
+                  ? $store.state.detailedMovie.escritors[0]
+                  : "Not found"
+              }}
             </td>
           </tr>
           <tr>
             <td>Pais</td>
             <td>
-              {{ movieData.countries ? movieData.countries[0] : "Not found" }}
+              {{
+                $store.state.detailedMovie.countries.length
+                  ? $store.state.detailedMovie.countries[0].name
+                  : "Not found"
+              }}
             </td>
           </tr>
           <tr>
             <td>Estreno</td>
             <td>
-              {{ movieData.release ? movieData.release : "Not found" }}
+              {{
+                $store.state.detailedMovie.release
+                  ? $store.state.detailedMovie.release
+                  : "Not found"
+              }}
             </td>
           </tr>
           <tr>
             <td>Rating</td>
             <td>
-              {{ movieData.rating ? movieData.rating : "Not found" }}
+              {{
+                $store.state.detailedMovie.rating
+                  ? $store.state.detailedMovie.rating
+                  : "Not found"
+              }}
             </td>
           </tr>
         </table>
@@ -79,28 +102,26 @@
 </template>
 
 <script>
+import { getTrailerFormated } from "../API/formatedResponse";
+
 export default {
   name: "detail",
   data() {
     return {
       isFavorites: false,
-      movieData: this.$store.getters.getDetailMovie
+      movieTrailer: ""
     };
   },
   beforeMount() {
+    this.getTrailer();
     this.$store.dispatch("findById", this.$route.params.id);
     this.isInFavorites();
-    this.movieData = this.$store.getters.getDetailMovie;
-  },
-  mounted() {
-    console.log("mvie data", this.$store.getters.getDetailMovie);
-    //Algo esta fallando, el fetch a api movies funciona pero por alguna razón se esta almacenando mal en el store.
-    // cuando traigo la información aparece un objeto raro que no tienen la información adentro
   },
   methods: {
-    // getTrailer() {
-
-    // },
+    async getTrailer() {
+      const trailer = await getTrailerFormated(this.$route.params.id);
+      this.movieTrailer = trailer[0].embed;
+    },
     addTofavorites() {
       this.$store.commit("addToFavorite", localStorage);
       console.log("local", localStorage);
@@ -118,14 +139,6 @@ export default {
         movie => movie._id === this.$route.params.id
       );
     }
-  },
-  create() {
-    this.$watch(
-      () => this.$route.params.id,
-      () => {
-        this.movieData = this.$store.getters.getDetailMovie;
-      }
-    );
   }
 };
 </script>
@@ -137,7 +150,10 @@ export default {
   justify-content: center;
   align-items: center;
 }
-
+.detail-trailer iframe {
+  border-width: 0px;
+  border-radius: 20px;
+}
 .movie-info {
   display: flex;
   flex-wrap: wrap;
