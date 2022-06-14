@@ -160,6 +160,12 @@ export default {
   justify-content: space-between;
 }
 
+@media screen and (max-width: 500px) {
+  .movie-info {
+    justify-content: center;
+  }
+}
+
 .movie-description {
   width: 40%;
   min-width: 250px;
